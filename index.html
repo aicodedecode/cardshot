@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Cardshot — turn any link into a branded social card</title>
+<title>Cardshot: turn any link into a branded social card</title>
 <meta name="description" content="Paste a URL or a screenshot, brand it with your colors and logo, and export a polished share card for Twitter/X, LinkedIn and OG tags. 100% client-side, no API keys.">
-<meta property="og:title" content="Cardshot — branded social cards in one click">
+<meta property="og:title" content="Cardshot: branded social cards in one click">
 <meta property="og:description" content="Paste a URL or a screenshot, brand it, export a polished share card. Free and fully client-side.">
 <meta property="og:type" content="website">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%237c5cff'/%3E%3Cstop offset='1' stop-color='%2322d3ee'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='url(%23g)'/%3E%3Ccircle cx='32' cy='32' r='13' fill='none' stroke='%230b0e14' stroke-width='5'/%3E%3Ccircle cx='32' cy='32' r='4' fill='%230b0e14'/%3E%3C/svg%3E">
@@ -15,7 +15,7 @@
 body{background:var(--bg);color:var(--text);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
 a{color:inherit}
 header{display:flex;align-items:center;gap:12px;padding:13px 22px;border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(10,13,19,.86);backdrop-filter:blur(8px);z-index:5}
-.logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--acc),var(--acc2));display:grid;place-items:center;color:#0b0e14;flex:none}
+.logo{width:30px;height:30px;border-radius:9px;background:var(--acc);display:grid;place-items:center;color:#0b0e14;flex:none}
 .logo svg{width:18px;height:18px}
 h1{font-size:16px;margin:0;font-weight:700;letter-spacing:-.01em}
 .tag{color:var(--mut);font-size:12.5px}
@@ -28,7 +28,7 @@ main{display:grid;grid-template-columns:356px 1fr;min-height:calc(100vh - 58px)}
 .group h2{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);margin:0 0 4px;font-weight:600}
 label{display:block;font-size:12px;color:var(--mut);margin:9px 0 4px}
 input[type=text],textarea,select{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:9px;color:var(--text);padding:9px 10px;font:inherit;font-size:13px}
-input[type=text]:focus,textarea:focus,select:focus{outline:none;border-color:var(--acc)}
+input[type=text]:focus,textarea:focus,select:focus{border-color:var(--acc)}
 textarea{resize:vertical;min-height:52px}
 .row{display:flex;gap:8px}
 .row>*{flex:1}
@@ -39,7 +39,7 @@ textarea{resize:vertical;min-height:52px}
 .btn.small{padding:7px 10px;font-size:12px;border-radius:8px}
 .tplgrid,.sizegrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
 .tpl,.sizeb{padding:9px 4px;border:1px solid var(--line);background:var(--panel2);color:var(--mut);border-radius:9px;font-size:12px;cursor:pointer;font-family:inherit}
-.tpl.on,.sizeb.on{border-color:var(--acc);color:var(--text);background:rgba(124,92,255,.14)}
+.tpl.on,.sizeb.on{border-color:var(--acc);color:var(--text);background:color-mix(in srgb,var(--acc) 15%,var(--panel2))}
 .swatches{display:flex;gap:7px;margin-top:9px;align-items:center}
 .sw{width:24px;height:24px;border-radius:8px;border:2px solid transparent;cursor:pointer;flex:none}
 .sw.on{border-color:#fff}
@@ -49,7 +49,8 @@ input[type=color]{width:34px;height:28px;border:1px solid var(--line);border-rad
 #stage{padding:20px;display:flex;flex-direction:column;gap:14px;align-items:center}
 #canvasWrap{position:relative;border:1px solid var(--line);border-radius:14px;background:#06080d;padding:14px;width:100%;display:flex;justify-content:center}
 #canvasWrap.drag{border-color:var(--acc);border-style:dashed}
-canvas{max-width:100%;height:auto;border-radius:8px;box-shadow:0 12px 44px rgba(0,0,0,.5);cursor:pointer}
+canvas{max-width:100%;height:auto;border-radius:8px;box-shadow:0 12px 44px rgba(0,0,0,.5)}
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
 #actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
 #gallery{width:100%;max-width:980px}
 #gallery h2{font-size:13px;color:var(--mut);font-weight:600;margin:6px 0 10px;display:flex;align-items:center;gap:10px}
@@ -61,6 +62,7 @@ footer{padding:16px 22px;color:var(--mut);font-size:12px;border-top:1px solid va
 footer a{color:var(--mut)}
 #toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(6px);background:#1b2432;border:1px solid var(--line);padding:9px 14px;border-radius:10px;font-size:13px;opacity:0;transition:.25s;pointer-events:none;z-index:9}
 #toast.show{opacity:1;transform:translateX(-50%)}
+@media(pointer:coarse){.btn,.tpl,.sizeb,.sw{min-height:44px}.btn.small{min-height:44px}}
 @media(max-width:920px){main{grid-template-columns:1fr}#controls{border-right:0;max-height:none;order:2}#stage{order:1}}
 </style>
 </head>
@@ -374,6 +376,7 @@ $('#captureBtn').onclick=function(){
 };
 function loadShots(){
   var grid=$('#shots'),note=$('#shotNote');
+  note.textContent='Checking the gallery...';
   fetch('https://api.github.com/repos/'+USER+'/'+REPO+'/contents/shots').then(function(r){if(!r.ok)throw 0;return r.json();}).then(function(list){
     if(!Array.isArray(list))throw 0;
     var pngs=list.filter(function(f){return/\.png$/i.test(f.name);}).sort(function(a,b){return a.name<b.name?1:-1;}).slice(0,12);
