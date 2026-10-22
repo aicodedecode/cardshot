@@ -1,0 +1,58 @@
+name: Capture screenshot
+on:
+  issues:
+    types: [opened]
+permissions:
+  contents: write
+  issues: write
+concurrency:
+  group: capture-${{ github.event.issue.number }}
+  cancel-in-progress: true
+jobs:
+  capture:
+    if: contains(github.event.issue.labels.*.name, 'capture')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install Playwright
+        run: |
+          cd capture
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Capture
+        id: cap
+        env:
+          TITLE: ${{ github.event.issue.title }}
+          BODY: ${{ github.event.issue.body }}
+        run: |
+          OUT=$(node capture/capture.js)
+          echo "path=$OUT" >> "$GITHUB_OUTPUT"
+      - name: Commit shot
+        run: |
+          git config user.name "cardshot-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add shots
+          if git diff --cached --quiet; then
+            echo "no new shot"
+          else
+            git commit -m "shot: #${{ github.event.issue.number }}"
+            git push
+          fi
+      - name: Reply on the issue
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PATH_OUT: ${{ steps.cap.outputs.path }}
+        run: |
+          REPO="${{ github.repository }}"
+          NUM="${{ github.event.issue.number }}"
+          if [ -n "$PATH_OUT" ] && [ -f "$PATH_OUT" ]; then
+            RAW="https://github.com/$REPO/raw/main/$PATH_OUT"
+            gh issue close "$NUM" --repo "$REPO" --comment "Done, screenshot captured: $RAW
+          It has been pushed to the shots folder, so the gallery on the site updates itself on the next automatic deploy."
+          else
+            gh issue comment "$NUM" --repo "$REPO" --body "Capture failed. Make sure the URL is a public, reachable https page. Private, internal or login-walled pages are rejected. Close this issue and open a new one with a working URL."
+          fi

@@ -1,0 +1,13 @@
+name: Capture a screenshot
+description: Request a screenshot of a public URL. Runs free on GitHub Actions, done in 2 to 3 minutes.
+title: "capture: "
+labels: [capture]
+body:
+  - type: input
+    id: url
+    attributes:
+      label: URL
+      description: Public https URL to capture. Private or internal addresses are rejected.
+      placeholder: https://example.com
+    validations:
+      required: true
