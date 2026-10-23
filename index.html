@@ -10,11 +10,12 @@
 <meta property="og:type" content="website">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%237c5cff'/%3E%3Cstop offset='1' stop-color='%2322d3ee'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='url(%23g)'/%3E%3Ccircle cx='32' cy='32' r='13' fill='none' stroke='%230b0e14' stroke-width='5'/%3E%3Ccircle cx='32' cy='32' r='4' fill='%230b0e14'/%3E%3C/svg%3E">
 <style>
-:root{--bg:#0a0d13;--panel:#11161f;--panel2:#171e2a;--line:#222c3b;--text:#e9eef6;--mut:#93a0b4;--acc:#7c5cff;--acc2:#22d3ee}
+:root{--bg:#0a0d13;--panel:#11161f;--panel2:#171e2a;--line:#222c3b;--text:#e9eef6;--mut:#93a0b4;--acc:#7c5cff;--acc2:#22d3ee;--headbg:rgba(10,13,19,.86);--wrapbg:#06080d;--toastbg:#1b2432;color-scheme:dark}
+html[data-theme="light"]{--bg:#f3f5f9;--panel:#ffffff;--panel2:#eef1f6;--line:#dbe1ea;--text:#1b2330;--mut:#5b6678;--acc:#6a48ff;--headbg:rgba(243,245,249,.88);--wrapbg:#e8ebf1;--toastbg:#ffffff;color-scheme:light}
 *{box-sizing:border-box}html,body{margin:0}
 body{background:var(--bg);color:var(--text);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
 a{color:inherit}
-header{display:flex;align-items:center;gap:12px;padding:13px 22px;border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(10,13,19,.86);backdrop-filter:blur(8px);z-index:5}
+header{display:flex;align-items:center;gap:12px;padding:13px 22px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--headbg);backdrop-filter:blur(8px);z-index:5}
 .logo{width:30px;height:30px;border-radius:9px;background:var(--acc);display:grid;place-items:center;color:#0b0e14;flex:none}
 .logo svg{width:18px;height:18px}
 h1{font-size:16px;margin:0;font-weight:700;letter-spacing:-.01em}
@@ -46,12 +47,12 @@ textarea{resize:vertical;min-height:52px}
 .tpl.on,.sizeb.on{border-color:var(--acc);color:var(--text);background:color-mix(in srgb,var(--acc) 15%,var(--panel2))}
 .swatches{display:flex;gap:7px;margin-top:9px;align-items:center}
 .sw{width:24px;height:24px;border-radius:8px;border:2px solid transparent;cursor:pointer;flex:none}
-.sw.on{border-color:#fff}
+.sw.on{border-color:var(--text)}
 input[type=color]{width:34px;height:28px;border:1px solid var(--line);border-radius:8px;background:var(--panel2);padding:2px;cursor:pointer}
 .filelabel{display:inline-flex}
 #dropHint{font-size:11.5px;color:var(--mut);margin-top:7px}
 #stage{padding:20px;display:flex;flex-direction:column;gap:14px;align-items:center}
-#canvasWrap{position:relative;border:1px solid var(--line);border-radius:14px;background:#06080d;padding:14px;width:100%;display:flex;justify-content:center}
+#canvasWrap{position:relative;border:1px solid var(--line);border-radius:14px;background:var(--wrapbg);padding:14px;width:100%;display:flex;justify-content:center}
 #canvasWrap.drag{border-color:var(--acc);border-style:dashed}
 canvas{max-width:100%;height:auto;border-radius:8px;box-shadow:0 12px 44px rgba(0,0,0,.5)}
 button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
@@ -64,7 +65,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 .shotnote{font-size:12px;color:var(--mut);margin:4px 0 0}
 footer{padding:16px 22px;color:var(--mut);font-size:12px;border-top:1px solid var(--line)}
 footer a{color:var(--mut)}
-#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(6px);background:#1b2432;border:1px solid var(--line);padding:9px 14px;border-radius:10px;font-size:13px;opacity:0;transition:.25s;pointer-events:none;z-index:9}
+#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(6px);background:var(--toastbg);border:1px solid var(--line);padding:9px 14px;border-radius:10px;font-size:13px;opacity:0;transition:.25s;pointer-events:none;z-index:9}
 #toast.show{opacity:1;transform:translateX(-50%)}
 @media(pointer:coarse){.btn,.tpl,.sizeb,.sw{min-height:44px}.btn.small{min-height:44px}}
 @media(max-width:920px){main{grid-template-columns:1fr}#controls{border-right:0;max-height:none;order:1}#stage{order:2}#jump{display:inline-flex}#controls{padding:12px}}
@@ -75,6 +76,7 @@ footer a{color:var(--mut)}
   <div class="logo"><svg viewBox="0 0 64 64" fill="none"><circle cx="32" cy="32" r="15" stroke="#0b0e14" stroke-width="7"/><circle cx="32" cy="32" r="5" fill="#0b0e14"/></svg></div>
   <div><h1>Cardshot</h1><span class="tag">branded social cards, no API keys</span></div>
   <nav>
+    <button class="btn ghost small" id="themeBtn" aria-label="Switch theme">Light</button>
     <a href="#gallery">Gallery</a>
     <a id="repoLink" href="https://github.com/aicodedecode/cardshot" target="_blank" rel="noopener">GitHub</a>
   </nav>
@@ -104,7 +106,7 @@ footer a{color:var(--mut)}
         <label class="filelabel btn ghost small" style="justify-content:center">Upload logo<input type="file" id="logoFile" accept="image/*" hidden></label>
         <button class="btn ghost small" id="clearLogo">Clear</button>
       </div>
-      <div id="dropHint">Tip: drag an image straight onto the preview.</div>
+      <div id="dropHint">Tip: drag an image straight onto the preview, or paste with Ctrl+V.</div>
     </div>
     <div class="group">
       <h2>Template</h2>
@@ -365,6 +367,7 @@ $('#imgFile').addEventListener('change',function(e){setImage(e.target.files[0],'
 $('#logoFile').addEventListener('change',function(e){setImage(e.target.files[0],'logo');});
 $('#clearImg').onclick=function(){state.img=null;render();};
 $('#clearLogo').onclick=function(){state.logo=null;render();};
+document.addEventListener('paste',function(e){var items=e.clipboardData&&e.clipboardData.items;if(!items)return;for(var i=0;i<items.length;i++){if(/^image\//.test(items[i].type)){setImage(items[i].getAsFile(),'img');e.preventDefault();break;}}});
 var wrapEl=$('#canvasWrap');
 ['dragenter','dragover'].forEach(function(ev){wrapEl.addEventListener(ev,function(e){e.preventDefault();wrapEl.classList.add('drag');});});
 ['dragleave','drop'].forEach(function(ev){wrapEl.addEventListener(ev,function(e){e.preventDefault();wrapEl.classList.remove('drag');});});
@@ -422,6 +425,10 @@ $('#presetLoad').onclick=function(){var n=$('#presetList').value;if(!n){toast('P
 $('#presetDel').onclick=function(){var n=$('#presetList').value;if(!n){toast('Pick a preset to delete');return;}var ps=presets();delete ps[n];try{localStorage.setItem('cardshot_presets',JSON.stringify(ps));}catch(e){}fillPresets();toast('Deleted: '+n);};
 document.addEventListener('keydown',function(e){var t=e.target&&e.target.tagName;if(t==='INPUT'||t==='TEXTAREA'||t==='SELECT')return;if((e.ctrlKey||e.metaKey)&&!e.shiftKey&&e.key.toLowerCase()==='z'){e.preventDefault();undo();return;}if((e.ctrlKey||e.metaKey)&&(e.key.toLowerCase()==='y'||(e.shiftKey&&e.key.toLowerCase()==='z'))){e.preventDefault();redo();return;}if(e.ctrlKey||e.metaKey||e.altKey)return;var k=e.key.toLowerCase();if(k==='d'){e.preventDefault();$('#download').click();}else if(k==='c'){e.preventDefault();$('#copyBtn').click();}else if(k>='1'&&k<='6'){var b=document.querySelectorAll('.tpl')[+k-1];if(b)b.click();}});
 function minis(){document.querySelectorAll('.tpl').forEach(function(b){var cv=b.querySelector('.tp');if(!cv)return;var sw=state.w,sh=state.h;state.w=cv.width;state.h=cv.height;var mc=cv.getContext('2d');mc.clearRect(0,0,cv.width,cv.height);try{(TPL[b.dataset.tpl]||TPL.browser)(mc,cv.width,cv.height);}catch(e){}state.w=sw;state.h=sh;});}
+var themeBtn=$('#themeBtn');
+function setTheme(t){document.documentElement.setAttribute('data-theme',t);try{localStorage.setItem('cardshot_theme',t)}catch(e){}themeBtn.textContent=t==='dark'?'Light':'Dark';}
+themeBtn.onclick=function(){setTheme(document.documentElement.getAttribute('data-theme')==='light'?'dark':'light');};
+setTheme((function(){try{return localStorage.getItem('cardshot_theme')||'dark'}catch(e){return 'dark'}})());
 load();
 syncInputs();
 markSw();

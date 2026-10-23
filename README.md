@@ -17,11 +17,12 @@ There are no API keys and no paid services anywhere in this project.
 - Export as PNG or JPEG
 - Brand presets: save your accent, background, font, brand and handle under a name and
   switch between them in one click; your settings are remembered in your browser
-- Drag and drop a screenshot straight onto the preview
+- Drag and drop a screenshot straight onto the preview, or paste with Ctrl+V
 - Undo and redo (Ctrl+Z / Ctrl+Shift+Z), Reset, and keyboard shortcuts: D downloads,
   C copies, 1 to 6 switches templates
 - Mobile-friendly: controls come first, a floating Preview button jumps to the canvas,
   and touch targets are 44px
+- Light and dark theme for the app itself, one click in the header and remembered
 
 ## URL capture pipeline (free)
 
