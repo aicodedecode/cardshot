@@ -37,7 +37,11 @@ textarea{resize:vertical;min-height:52px}
 .btn.ghost{background:var(--panel2);color:var(--text);border:1px solid var(--line)}
 .btn.block{width:100%}
 .btn.small{padding:7px 10px;font-size:12px;border-radius:8px}
+.btn:disabled{opacity:.4;cursor:default;filter:none}
 .tplgrid,.sizegrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
+.tpl{display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 4px 8px}
+.tpl .tp{width:100%;height:auto;border-radius:5px;border:1px solid var(--line);background:#0d1119;display:block}
+#jump{position:fixed;right:14px;bottom:14px;display:none;z-index:8;box-shadow:0 6px 20px rgba(0,0,0,.45)}
 .tpl,.sizeb{padding:9px 4px;border:1px solid var(--line);background:var(--panel2);color:var(--mut);border-radius:9px;font-size:12px;cursor:pointer;font-family:inherit}
 .tpl.on,.sizeb.on{border-color:var(--acc);color:var(--text);background:color-mix(in srgb,var(--acc) 15%,var(--panel2))}
 .swatches{display:flex;gap:7px;margin-top:9px;align-items:center}
@@ -63,7 +67,7 @@ footer a{color:var(--mut)}
 #toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(6px);background:#1b2432;border:1px solid var(--line);padding:9px 14px;border-radius:10px;font-size:13px;opacity:0;transition:.25s;pointer-events:none;z-index:9}
 #toast.show{opacity:1;transform:translateX(-50%)}
 @media(pointer:coarse){.btn,.tpl,.sizeb,.sw{min-height:44px}.btn.small{min-height:44px}}
-@media(max-width:920px){main{grid-template-columns:1fr}#controls{border-right:0;max-height:none;order:2}#stage{order:1}}
+@media(max-width:920px){main{grid-template-columns:1fr}#controls{border-right:0;max-height:none;order:1}#stage{order:2}#jump{display:inline-flex}#controls{padding:12px}}
 </style>
 </head>
 <body>
@@ -105,12 +109,12 @@ footer a{color:var(--mut)}
     <div class="group">
       <h2>Template</h2>
       <div class="tplgrid" id="tpls">
-        <button class="tpl on" data-tpl="browser">Browser</button>
-        <button class="tpl" data-tpl="spotlight">Spotlight</button>
-        <button class="tpl" data-tpl="framed">Framed</button>
-        <button class="tpl" data-tpl="split">Split</button>
-        <button class="tpl" data-tpl="quote">Quote</button>
-        <button class="tpl" data-tpl="minimal">Minimal</button>
+        <button class="tpl on" data-tpl="browser"><canvas class="tp" width="96" height="60" aria-hidden="true"></canvas>Browser</button>
+        <button class="tpl" data-tpl="spotlight"><canvas class="tp" width="96" height="60" aria-hidden="true"></canvas>Spotlight</button>
+        <button class="tpl" data-tpl="framed"><canvas class="tp" width="96" height="60" aria-hidden="true"></canvas>Framed</button>
+        <button class="tpl" data-tpl="split"><canvas class="tp" width="96" height="60" aria-hidden="true"></canvas>Split</button>
+        <button class="tpl" data-tpl="quote"><canvas class="tp" width="96" height="60" aria-hidden="true"></canvas>Quote</button>
+        <button class="tpl" data-tpl="minimal"><canvas class="tp" width="96" height="60" aria-hidden="true"></canvas>Minimal</button>
       </div>
     </div>
     <div class="group">
@@ -151,6 +155,11 @@ footer a{color:var(--mut)}
       <label style="display:flex;align-items:center;gap:8px;margin-top:12px"><input type="checkbox" id="wm" style="width:auto"> Show "made with cardshot"</label>
     </div>
     <div class="group">
+      <h2>Brand presets</h2>
+      <div class="row"><input type="text" id="presetName" placeholder="Preset name" aria-label="Preset name"><button class="btn ghost small" id="presetSave">Save</button></div>
+      <div class="row" style="margin-top:8px"><select id="presetList" aria-label="Saved presets" style="flex:2"><option value="">Saved presets</option></select><button class="btn ghost small" id="presetLoad">Load</button><button class="btn ghost small" id="presetDel">Delete</button></div>
+    </div>
+    <div class="group">
       <h2>Capture from a URL</h2>
       <p style="font-size:12.5px;color:var(--mut);margin:4px 0 10px;line-height:1.5">No paid APIs here: the screenshot is taken by a free GitHub Actions workflow on this repo. You open a pre-filled issue, the shot lands in the gallery in 2 to 3 minutes.</p>
       <button class="btn block" id="captureBtn">Capture from URL</button>
@@ -159,10 +168,15 @@ footer a{color:var(--mut)}
   <section id="stage">
     <div id="canvasWrap"><canvas id="card" width="1200" height="630"></canvas></div>
     <div id="actions">
-      <button class="btn" id="download">Download PNG</button>
+      <button class="btn" id="download">Download image</button>
+      <select id="fmt" aria-label="Export format" style="width:auto"><option value="png">PNG</option><option value="jpeg">JPEG</option></select>
       <button class="btn ghost" id="copyBtn">Copy image</button>
+      <button class="btn ghost" id="undoBtn">Undo</button>
+      <button class="btn ghost" id="redoBtn">Redo</button>
+      <button class="btn ghost" id="resetBtn">Reset</button>
       <button class="btn ghost" id="toGallery">View gallery</button>
     </div>
+    <button class="btn ghost" id="jump">Preview</button>
     <div id="gallery">
       <h2>Live shots <button class="btn ghost small" id="refreshShots">Refresh</button></h2>
       <div class="shots" id="shots"></div>
@@ -340,6 +354,7 @@ function render(){
   c.lineJoin='round';c.textAlign='left';c.textBaseline='alphabetic';
   (TPL[state.tpl]||TPL.browser)(c,state.w,state.h);
   watermark(c);
+  minis();
 }
 function setImage(file,which){
   if(!file||!/^image\//.test(file.type)){toast('That file is not an image');return;}
@@ -354,19 +369,19 @@ var wrapEl=$('#canvasWrap');
 ['dragenter','dragover'].forEach(function(ev){wrapEl.addEventListener(ev,function(e){e.preventDefault();wrapEl.classList.add('drag');});});
 ['dragleave','drop'].forEach(function(ev){wrapEl.addEventListener(ev,function(e){e.preventDefault();wrapEl.classList.remove('drag');});});
 wrapEl.addEventListener('drop',function(e){var f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0];if(f)setImage(f,'img');});
-function bindText(id,key){var el=$(id);el.value=state[key];el.addEventListener('input',function(){state[key]=el.value;save();render();});}
+function bindText(id,key){var el=$(id);el.value=state[key];el.addEventListener('input',function(){state[key]=el.value;save();render();snapSoon();});}
 function syncInputs(){['#url','#head','#sub','#brand','#handle'].forEach(function(id){var el=$(id);if(el)el.value=state[id.slice(1)];});acc.value=state.accent;bgSel.value=state.bg;fontSel.value=state.font;wm.checked=state.wm;}
 bindText('#url','url');bindText('#head','head');bindText('#sub','sub');bindText('#brand','brand');bindText('#handle','handle');
 var acc=$('#accent');acc.value=state.accent;
-acc.addEventListener('input',function(){state.accent=acc.value;markSw();save();render();});
+acc.addEventListener('input',function(){state.accent=acc.value;markSw();save();render();snapSoon();});
 function markSw(){document.querySelectorAll('.sw').forEach(function(s){s.classList.toggle('on',s.dataset.c.toLowerCase()===state.accent.toLowerCase());});}
-document.querySelectorAll('.sw').forEach(function(s){s.addEventListener('click',function(){state.accent=s.dataset.c;acc.value=s.dataset.c;markSw();save();render();});});
-var bgSel=$('#bgSel');bgSel.value=state.bg;bgSel.addEventListener('change',function(){state.bg=bgSel.value;save();render();});
-var fontSel=$('#fontSel');fontSel.value=state.font;fontSel.addEventListener('change',function(){state.font=fontSel.value;save();render();});
-var wm=$('#wm');wm.checked=state.wm;wm.addEventListener('change',function(){state.wm=wm.checked;save();render();});
-document.querySelectorAll('.tpl').forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('.tpl').forEach(function(x){x.classList.remove('on')});b.classList.add('on');state.tpl=b.dataset.tpl;render();});});
-document.querySelectorAll('.sizeb').forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('.sizeb').forEach(function(x){x.classList.remove('on')});b.classList.add('on');state.w=+b.dataset.w;state.h=+b.dataset.h;render();});});
-$('#download').onclick=function(){canvas.toBlob(function(b){var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='cardshot-'+state.tpl+'-'+state.w+'x'+state.h+'.png';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(a.href)},4000);toast('PNG downloaded');},'image/png');};
+document.querySelectorAll('.sw').forEach(function(s){s.addEventListener('click',function(){state.accent=s.dataset.c;acc.value=s.dataset.c;markSw();save();render();snapSoon();});});
+var bgSel=$('#bgSel');bgSel.value=state.bg;bgSel.addEventListener('change',function(){state.bg=bgSel.value;save();render();snapSoon();});
+var fontSel=$('#fontSel');fontSel.value=state.font;fontSel.addEventListener('change',function(){state.font=fontSel.value;save();render();snapSoon();});
+var wm=$('#wm');wm.checked=state.wm;wm.addEventListener('change',function(){state.wm=wm.checked;save();render();snapSoon();});
+document.querySelectorAll('.tpl').forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('.tpl').forEach(function(x){x.classList.remove('on')});b.classList.add('on');state.tpl=b.dataset.tpl;render();snapSoon();});});
+document.querySelectorAll('.sizeb').forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('.sizeb').forEach(function(x){x.classList.remove('on')});b.classList.add('on');state.w=+b.dataset.w;state.h=+b.dataset.h;render();snapSoon();});});
+$('#download').onclick=function(){var fmt=$('#fmt').value,jpeg=fmt==='jpeg';canvas.toBlob(function(b){var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='cardshot-'+state.tpl+'-'+state.w+'x'+state.h+(jpeg?'.jpg':'.png');document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(a.href)},4000);toast(jpeg?'JPEG downloaded':'PNG downloaded');},jpeg?'image/jpeg':'image/png');};
 $('#copyBtn').onclick=function(){canvas.toBlob(function(b){if(navigator.clipboard&&window.ClipboardItem){navigator.clipboard.write([new ClipboardItem({'image/png':b})]).then(function(){toast('Copied to clipboard')},function(){toast('Copy blocked here, use Download')});}else{toast('Clipboard not supported, use Download');}},'image/png');};
 $('#toGallery').onclick=function(){$('#gallery').scrollIntoView({behavior:'smooth'});};
 $('#captureBtn').onclick=function(){
@@ -388,11 +403,32 @@ function loadShots(){
 }
 $('#refreshShots').onclick=loadShots;
 setInterval(function(){if(document.visibilityState==='visible')loadShots();},60000);
+var DEF={url:'example.com',head:'Your product just shipped',sub:'One line that makes people click through.',brand:'Your Brand',handle:'@yourhandle',accent:'#7c5cff',bg:'dark',font:'sans',wm:false,tpl:'browser',w:1200,h:630};
+var hist=[],hi=-1,ht=null;
+function snap(){var s=JSON.stringify({url:state.url,head:state.head,sub:state.sub,brand:state.brand,handle:state.handle,accent:state.accent,bg:state.bg,font:state.font,wm:state.wm,tpl:state.tpl,w:state.w,h:state.h});if(hist[hi]===s)return;hist=hist.slice(0,hi+1);hist.push(s);if(hist.length>80)hist.shift();hi=hist.length-1;updUR();}
+function snapSoon(){clearTimeout(ht);ht=setTimeout(snap,350);}
+function syncBtns(){document.querySelectorAll('.tpl').forEach(function(b){b.classList.toggle('on',b.dataset.tpl===state.tpl)});document.querySelectorAll('.sizeb').forEach(function(b){b.classList.toggle('on',+b.dataset.w===state.w&&+b.dataset.h===state.h)});}
+function updUR(){$('#undoBtn').disabled=hi<=0;$('#redoBtn').disabled=hi>=hist.length-1;}
+function applyState(o){['url','head','sub','brand','handle','accent','bg','font','wm','tpl','w','h'].forEach(function(k){if(k in o)state[k]=o[k];});syncInputs();markSw();syncBtns();render();updUR();}
+function undo(){if(hi>0){hi--;applyState(JSON.parse(hist[hi]));toast('Undo');}}
+function redo(){if(hi<hist.length-1){hi++;applyState(JSON.parse(hist[hi]));toast('Redo');}}
+$('#undoBtn').onclick=undo;$('#redoBtn').onclick=redo;
+$('#resetBtn').onclick=function(){state.img=null;state.logo=null;applyState(Object.assign({},DEF));snap();toast('Reset to defaults');};
+$('#jump').onclick=function(){$('#canvasWrap').scrollIntoView({behavior:'smooth',block:'start'});};
+function presets(){try{return JSON.parse(localStorage.getItem('cardshot_presets')||'{}')}catch(e){return{}}}
+function fillPresets(){var sel=$('#presetList'),ps=presets();sel.innerHTML='<option value="">Saved presets</option>';Object.keys(ps).forEach(function(n){var o=document.createElement('option');o.value=n;o.textContent=n;sel.appendChild(o);});}
+$('#presetSave').onclick=function(){var n=$('#presetName').value.trim();if(!n){toast('Name your preset first');return;}var ps=presets();ps[n]={accent:state.accent,bg:state.bg,font:state.font,brand:state.brand,handle:state.handle,wm:state.wm};try{localStorage.setItem('cardshot_presets',JSON.stringify(ps));}catch(e){}fillPresets();$('#presetList').value=n;toast('Preset saved: '+n);};
+$('#presetLoad').onclick=function(){var n=$('#presetList').value;if(!n){toast('Pick a preset to load');return;}var p=presets()[n];if(!p){toast('Preset not found');return;}applyState(p);snap();toast('Loaded: '+n);};
+$('#presetDel').onclick=function(){var n=$('#presetList').value;if(!n){toast('Pick a preset to delete');return;}var ps=presets();delete ps[n];try{localStorage.setItem('cardshot_presets',JSON.stringify(ps));}catch(e){}fillPresets();toast('Deleted: '+n);};
+document.addEventListener('keydown',function(e){var t=e.target&&e.target.tagName;if(t==='INPUT'||t==='TEXTAREA'||t==='SELECT')return;if((e.ctrlKey||e.metaKey)&&!e.shiftKey&&e.key.toLowerCase()==='z'){e.preventDefault();undo();return;}if((e.ctrlKey||e.metaKey)&&(e.key.toLowerCase()==='y'||(e.shiftKey&&e.key.toLowerCase()==='z'))){e.preventDefault();redo();return;}if(e.ctrlKey||e.metaKey||e.altKey)return;var k=e.key.toLowerCase();if(k==='d'){e.preventDefault();$('#download').click();}else if(k==='c'){e.preventDefault();$('#copyBtn').click();}else if(k>='1'&&k<='6'){var b=document.querySelectorAll('.tpl')[+k-1];if(b)b.click();}});
+function minis(){document.querySelectorAll('.tpl').forEach(function(b){var cv=b.querySelector('.tp');if(!cv)return;var sw=state.w,sh=state.h;state.w=cv.width;state.h=cv.height;var mc=cv.getContext('2d');mc.clearRect(0,0,cv.width,cv.height);try{(TPL[b.dataset.tpl]||TPL.browser)(mc,cv.width,cv.height);}catch(e){}state.w=sw;state.h=sh;});}
 load();
 syncInputs();
 markSw();
 render();
+snap();
 loadShots();
+fillPresets();
 })();
 </script>
 </body>

@@ -11,11 +11,17 @@ There are no API keys and no paid services anywhere in this project.
 
 ## Features
 
-- 6 templates: Browser, Spotlight, Framed, Split, Quote, Minimal
+- 6 templates: Browser, Spotlight, Framed, Split, Quote, Minimal, each with a live
+  thumbnail preview
 - Export sizes: OG 1200x630, Square, Portrait, Story, Wide, Post
-- Brand presets (name, handle, accent, font, logo) remembered in your browser
+- Export as PNG or JPEG
+- Brand presets: save your accent, background, font, brand and handle under a name and
+  switch between them in one click; your settings are remembered in your browser
 - Drag and drop a screenshot straight onto the preview
-- Download PNG or copy straight to the clipboard
+- Undo and redo (Ctrl+Z / Ctrl+Shift+Z), Reset, and keyboard shortcuts: D downloads,
+  C copies, 1 to 6 switches templates
+- Mobile-friendly: controls come first, a floating Preview button jumps to the canvas,
+  and touch targets are 44px
 
 ## URL capture pipeline (free)
 
